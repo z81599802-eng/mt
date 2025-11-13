@@ -7,6 +7,7 @@ import { getSocket } from '../utils/socket.js';
 
 const orderItemSchema = z.object({ productId: z.string().uuid(), quantity: z.number().int().positive() });
 const orderSchema = z.object({ paymentMode: z.enum(['CASH', 'UPI']), items: z.array(orderItemSchema).min(1) });
+type OrderParams = { orderId: string };
 
 export async function listOrders(req: AuthenticatedRequest, res: Response) {
   const where = req.user?.role === 'CUSTOMER' ? { userId: req.user.id } : undefined;
@@ -49,7 +50,7 @@ export async function createOrder(req: AuthenticatedRequest, res: Response) {
 
 const paymentSchema = z.object({ paymentStatus: z.enum(['PENDING', 'PAID', 'FAILED']) });
 
-export async function updatePaymentStatus(req: AuthenticatedRequest, res: Response) {
+export async function updatePaymentStatus(req: AuthenticatedRequest<OrderParams>, res: Response) {
   const data = paymentSchema.parse(req.body);
   const order = await prisma.order.update({ where: { id: req.params.orderId }, data });
   getSocket()?.emit('order:payment', { orderId: order.id, paymentStatus: order.paymentStatus });

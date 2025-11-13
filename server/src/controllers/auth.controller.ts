@@ -8,7 +8,7 @@ import { signJwt } from '../utils/jwt.js';
 const phoneSchema = z.object({ phone: z.string().regex(/^\+?[1-9]\d{9,14}$/) });
 const verifySchema = z.object({ phone: phoneSchema.shape.phone, otp: z.string().length(6) });
 
-export async function requestOtp(req: Request, res: Response) {
+export function requestOtp(req: Request, res: Response) {
   const { phone } = phoneSchema.parse(req.body);
   const otp = generateOtp();
   createOtp(phone, otp);

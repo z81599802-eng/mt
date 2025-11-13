@@ -11,6 +11,7 @@ const productSchema = z.object({
   imageUrl: z.string().url().optional(),
   categoryId: z.string().uuid(),
 });
+type ProductParams = { productId: string };
 
 export async function listProducts(_req: AuthenticatedRequest, res: Response) {
   const products = await prisma.product.findMany({ include: { category: true } });
@@ -23,13 +24,13 @@ export async function createProduct(req: AuthenticatedRequest, res: Response) {
   return res.status(201).json(product);
 }
 
-export async function updateProduct(req: AuthenticatedRequest, res: Response) {
+export async function updateProduct(req: AuthenticatedRequest<ProductParams>, res: Response) {
   const data = productSchema.partial().parse(req.body);
   const product = await prisma.product.update({ where: { id: req.params.productId }, data });
   return res.json(product);
 }
 
-export async function deleteProduct(req: AuthenticatedRequest, res: Response) {
+export async function deleteProduct(req: AuthenticatedRequest<ProductParams>, res: Response) {
   await prisma.product.delete({ where: { id: req.params.productId } });
   return res.status(204).send();
 }

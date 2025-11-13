@@ -1,12 +1,19 @@
-import type { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction, ParamsDictionary } from 'express';
+import type { ParsedQs } from 'qs';
 import { verifyJwt } from '../utils/jwt.js';
 import { logger } from '../utils/logger.js';
 
 export type Role = 'CUSTOMER' | 'ADMIN' | 'CASHIER' | 'OWNER';
 
-export interface AuthenticatedRequest extends Request {
+export type AuthenticatedRequest<
+  P = ParamsDictionary,
+  ResBody = unknown,
+  ReqBody = unknown,
+  ReqQuery = ParsedQs,
+  Locals extends Record<string, unknown> = Record<string, unknown>,
+> = Request<P, ResBody, ReqBody, ReqQuery, Locals> & {
   user?: { id: string; role: Role; phone: string };
-}
+};
 
 export function authenticate(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
