@@ -1,0 +1,35 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - name: Install server deps
+        working-directory: server
+        run: npm install
+      - name: Lint server
+        working-directory: server
+        run: npm run lint -- --max-warnings=0
+      - name: Test server
+        working-directory: server
+        run: npm test
+      - name: Build customer
+        working-directory: apps/customer
+        run: |
+          npm install
+          npm run build
+      - name: Build admin
+        working-directory: apps/admin
+        run: |
+          npm install
+          npm run build
