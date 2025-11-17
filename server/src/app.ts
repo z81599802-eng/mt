@@ -1,4 +1,4 @@
-import express, { json, urlencoded } from 'express';
+import express, { type RequestHandler, json, urlencoded } from 'express';
 import helmet from 'helmet';
 import cors from 'cors';
 import rateLimit from 'express-rate-limit';
@@ -15,7 +15,8 @@ app.use(helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } }));
 app.use(cors({ origin: [process.env.CLIENT_URL ?? '*', process.env.ADMIN_URL ?? '*'], credentials: true }));
 app.use(json({ limit: '1mb' }));
 app.use(urlencoded({ extended: false }));
-app.use(morgan('combined'));
+const requestLogger: RequestHandler = morgan('combined');
+app.use(requestLogger);
 
 const limiter = rateLimit({
   windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS ?? 60000),
